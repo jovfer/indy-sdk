@@ -1,8 +1,11 @@
+extern crate serde_json;
+
 use std::str;
 use std::collections::HashMap;
 
 use utils::crypto::chacha20poly1305_ietf::ChaCha20Poly1305IETF;
 
+use errors::common::CommonError;
 use errors::wallet::WalletError;
 use services::wallet::WalletRecord;
 
@@ -17,11 +20,11 @@ pub(super) fn encrypt_tag_names(tag_names: &[&str], tag_name_key: &[u8], tags_hm
         let tag_name_bytes = tag_name.as_bytes();
         let tag_name = if tag_name_bytes.len() > 0 && tag_name_bytes[0] as char == '~' {
             TagName::OfPlain(
-                ChaCha20Poly1305IETF::encrypt_as_searchable(&tag_name_bytes[1..], tag_name_key, tags_hmac_key)
+                encrypt_as_searchable(&tag_name_bytes[1..], tag_name_key, tags_hmac_key)
             )
         } else {
             TagName::OfEncrypted(
-                ChaCha20Poly1305IETF::encrypt_as_searchable(tag_name_bytes, tag_name_key, tags_hmac_key)
+                encrypt_as_searchable(tag_name_bytes, tag_name_key, tags_hmac_key)
             )
         };
         encrypted_tag_names.push(tag_name)
@@ -39,7 +42,7 @@ pub(super) fn encrypt_tags(tags: &HashMap<String, String>, tag_name_key: &[u8], 
             // '~' character on start is skipped.
             etags.push(
                 Tag::PlainText(
-                    ChaCha20Poly1305IETF::encrypt_as_searchable(&tag_name_bytes[1..], tag_name_key, tags_hmac_key),
+                    encrypt_as_searchable(&tag_name_bytes[1..], tag_name_key, tags_hmac_key),
                     tag_value.to_string()
                 )
             );
@@ -47,14 +50,49 @@ pub(super) fn encrypt_tags(tags: &HashMap<String, String>, tag_name_key: &[u8], 
         else {
             etags.push(
                 Tag::Encrypted(
-                    ChaCha20Poly1305IETF::encrypt_as_searchable(tag_name_bytes, tag_name_key, tags_hmac_key),
-                    ChaCha20Poly1305IETF::encrypt_as_searchable(tag_value.as_bytes(), tag_value_key, tags_hmac_key)
+                    encrypt_as_searchable(tag_name_bytes, tag_name_key, tags_hmac_key),
+                    encrypt_as_searchable(tag_value.as_bytes(), tag_value_key, tags_hmac_key)
                 )
             );
         }
     }
+
     etags
 }
+
+
+pub(super) fn encrypt_as_searchable(data: &[u8], key: &[u8], hmac_key: &[u8]) -> Vec<u8> {
+    let nonce = ChaCha20Poly1305IETF::hmacsha256_authenticate(data, hmac_key);
+    let (ct, nonce) = ChaCha20Poly1305IETF::encrypt(data, key, Some(&nonce[..ChaCha20Poly1305IETF::NONCEBYTES]));
+
+    let mut result: Vec<u8> = Default::default();
+    result.extend_from_slice(&nonce);
+    result.extend_from_slice(&ct);
+    result
+}
+
+pub(super) fn encrypt_as_not_searchable(data: &[u8], key: &[u8]) -> Vec<u8> {
+    let (ct, nonce) = ChaCha20Poly1305IETF::encrypt(data, key, None);
+
+    let mut result: Vec<u8> = Default::default();
+    result.extend_from_slice(&nonce);
+    result.extend_from_slice(&ct);
+    result
+}
+
+pub(super) fn decrypt(data: &[u8], key: &[u8], nonce: &[u8]) -> Result<Vec<u8>, WalletError> {
+    let res = ChaCha20Poly1305IETF::decrypt(data, key, nonce)?;
+    Ok(res)
+}
+
+pub(super) fn decrypt_merged(joined_data: &[u8], key: &[u8]) -> Result<Vec<u8>, WalletError> {
+    let nonce = &joined_data[..ChaCha20Poly1305IETF::NONCEBYTES];
+    let data = &joined_data[ChaCha20Poly1305IETF::NONCEBYTES..];
+
+    let res = ChaCha20Poly1305IETF::decrypt(data, key, nonce)?;
+    Ok(res)
+}
+
 
 pub(super) fn decrypt_tags(etags: &Option<Vec<Tag>>, tag_name_key: &[u8], tag_value_key: &[u8]) -> Result<Option<HashMap<String, String>>, WalletError> {
     match etags {
@@ -65,18 +103,18 @@ pub(super) fn decrypt_tags(etags: &Option<Vec<Tag>>, tag_name_key: &[u8], tag_va
             for etag in etags {
                 let (name, value) = match etag {
                     &Tag::PlainText(ref ename, ref value) => {
-                        let name = match ChaCha20Poly1305IETF::decrypt_merged(&ename, tag_name_key) {
+                        let name = match decrypt_merged(ename, tag_name_key) {
                             Err(_) => return Err(WalletError::EncryptionError("Unable to decrypt tag name".to_string())),
                             Ok(tag_name_bytes) => format!("~{}", str::from_utf8(&tag_name_bytes)?)
                         };
                         (name, value.clone())
-                    },
+                    }
                     &Tag::Encrypted(ref ename, ref evalue) => {
-                        let name = match ChaCha20Poly1305IETF::decrypt_merged(&ename, tag_name_key) {
+                        let name = match decrypt_merged(ename, tag_name_key) {
                             Err(_) => return Err(WalletError::EncryptionError("Unable to decrypt tag name".to_string())),
                             Ok(tag_name) => String::from_utf8(tag_name)?
                         };
-                        let value = match ChaCha20Poly1305IETF::decrypt_merged(&evalue, tag_value_key) {
+                        let value = match decrypt_merged(evalue, tag_value_key) {
                             Err(_) => return Err(WalletError::EncryptionError("Unable to decrypt tag value".to_string())),
                             Ok(tag_value) => String::from_utf8(tag_value)?
                         };
@@ -92,13 +130,13 @@ pub(super) fn decrypt_tags(etags: &Option<Vec<Tag>>, tag_name_key: &[u8], tag_va
 }
 
 pub(super) fn decrypt_storage_record(record: &StorageEntity, keys: &Keys) -> Result<WalletRecord, WalletError> {
-    let decrypted_name = ChaCha20Poly1305IETF::decrypt_merged(&record.name, &keys.name_key)?;
+    let decrypted_name = decrypt_merged(&record.name, &keys.name_key)?;
     let decrypted_name = String::from_utf8(decrypted_name)?;
 
     let decrypted_value = match record.value {
         Some(ref value) => {
-            let decrypted_value_key = ChaCha20Poly1305IETF::decrypt_merged(&value.key, &keys.value_key)?;
-            let decrypted_value = ChaCha20Poly1305IETF::decrypt_merged(&value.data, &decrypted_value_key)?;
+            let decrypted_value_key = decrypt_merged(&value.key, &keys.value_key)?;
+            let decrypted_value = decrypt_merged(&value.data, &decrypted_value_key)?;
             Some(String::from_utf8(decrypted_value)?)
         },
         None => None
@@ -106,7 +144,7 @@ pub(super) fn decrypt_storage_record(record: &StorageEntity, keys: &Keys) -> Res
 
     let decrypted_type = match record.type_ {
         Some(ref type_) => {
-            let decrypted_type = ChaCha20Poly1305IETF::decrypt_merged(type_, &keys.type_key)?;
+            let decrypted_type = decrypt_merged(type_, &keys.type_key)?;
             Some(String::from_utf8(decrypted_type)?)
         },
         None => None,

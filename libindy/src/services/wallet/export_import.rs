@@ -134,7 +134,7 @@ pub (super) fn export(wallet: &Wallet, writer: Box<Write>, passphrase: &str, ver
         let mut decrypt_index = 0;
         while decrypt_index + 1024 <= buffer.len() {
             let chunk = &buffer[decrypt_index .. decrypt_index+1024];
-            let encrypted_chunk = ChaCha20Poly1305IETF::encrypt(chunk, &key, &nonce);
+            let (encrypted_chunk, _) = ChaCha20Poly1305IETF::encrypt(chunk, &key, Some(&nonce));
             ChaCha20Poly1305IETF::increment_nonce(&mut nonce);
             writer.write_all(&encrypted_chunk)?;
             decrypt_index += 1024;
@@ -150,7 +150,7 @@ pub (super) fn export(wallet: &Wallet, writer: Box<Write>, passphrase: &str, ver
     }
 
     if buffer.len() > 0 {
-        let last_encrypted_chunk = ChaCha20Poly1305IETF::encrypt(&buffer, &key, &nonce);
+        let (last_encrypted_chunk, _) = ChaCha20Poly1305IETF::encrypt(&buffer, &key, Some(&nonce));
         writer.write_all(&last_encrypted_chunk)?;
     }
 
@@ -380,6 +380,7 @@ mod tests {
     use services::wallet::storage::WalletStorageType;
     use services::wallet::storage::default::SQLiteStorageType;
     use services::wallet::wallet::{Keys, Wallet};
+    use services::wallet::encryption::decrypt_merged;
 
     use super::*;
 
@@ -413,11 +414,11 @@ mod tests {
         let storage = storage_type.open_storage("test_wallet", None, &credentials[..]).unwrap();
 
         let keys = Keys::new(
-            ChaCha20Poly1305IETF::decrypt_merged(
+            decrypt_merged(
                 &storage.get_storage_metadata().unwrap(),
                 &master_key
             ).unwrap()
-        );
+        ).unwrap();
 
         Wallet::new(name, pool_name, storage, keys)
     }
