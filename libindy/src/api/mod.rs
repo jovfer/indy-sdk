@@ -105,7 +105,7 @@ pub enum ErrorCode
     WalletStorageError = 210,
 
     // Error during encryption-related operations
-    WalletEncryptonError = 211,
+    WalletEncryptionError = 211,
 
     // Requested wallet item not found
     WalletItemNotFound = 212,
