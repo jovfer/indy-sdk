@@ -788,19 +788,31 @@ mod tests {
     #[test]
     fn wallet_search_empty_query_with_count() {
         _cleanup();
+
+        let type_ = "test_type_";
+        let name = "foo";
+        let value = "bar";
+        let tags = r#"{"tag1":"tag_value1"}"#;
+
         let wallet = _create_wallet();
-        let mut tags = HashMap::new();
-        tags.insert("tag1".to_string(), "tag2".to_string());
-        wallet.add("test_type_", "foo", "bar", &tags).unwrap();
-        let fetch_options = &_search_options(true, true, false, true, false);
+
+        wallet.add(type_, name, value, tags).unwrap();
+        let fetch_options = &_search_options(true, true, true, true, true);
 
         // successful encrypted search
         let query_json = "{}";
         let mut iterator = wallet.search("test_type_", query_json, Some(fetch_options)).unwrap();
 
         let res = iterator.next().unwrap().unwrap();
-        assert_eq!(res.name, "foo".to_string());
-        assert_eq!(res.value.unwrap(), "bar".to_string());
+
+        let exp_tags: HashMap<String, String> = serde_json::from_str(tags).unwrap();
+        let expected = WalletRecord{
+            name: name.to_string(),
+            value: Some(value.to_string()),
+            tags: Some(exp_tags),
+            type_: Some(type_.to_string()),
+        };
+        assert_eq!(res, expected);
 
         let res = iterator.next().unwrap();
         assert!(res.is_none());

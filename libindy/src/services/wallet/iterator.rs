@@ -28,17 +28,17 @@ impl WalletIterator {
             let decrypted_name = decrypt_merged(&next_storage_entity.name, &self.keys.name_key)?;
             let name = String::from_utf8(decrypted_name)?;
 
-            let type_ = match next_storage_entity.type_ {
-                None => None,
-                Some(encrypted_type) => Some(String::from_utf8(decrypt_merged(&encrypted_type, &self.keys.type_key)?)?)
-            };
-
             let value = match next_storage_entity.value {
                 None => None,
                 Some(encrypted_value) => Some(encrypted_value.decrypt(&self.keys.value_key)?)
             };
 
             let tags = decrypt_tags(&next_storage_entity.tags, &self.keys.tag_name_key, &self.keys.tag_value_key)?;
+
+            let type_ = match next_storage_entity.type_ {
+                None => None,
+                Some(encrypted_type) => Some(String::from_utf8(decrypt(&encrypted_type, &self.keys.type_key)?)?)
+            };
 
             Ok(Some(WalletRecord::new(name, type_, value, tags)))
         } else { Ok(None) }
