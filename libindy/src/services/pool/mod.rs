@@ -84,16 +84,16 @@ impl PoolService {
         fs::create_dir_all(path.as_path())
             .map_err(map_err_trace!("Create dir failed"))?;
 
-        path.push(name);
-        path.set_extension("txn");
-        fs::copy(&pool_config.genesis_txn, path.as_path())
-            .map_err(map_err_trace!("Copy file failed"))?;
-        path.pop();
-
         path.push("config");
         path.set_extension("json");
         let mut f: fs::File = fs::File::create(path.as_path())
             .map_err(map_err_trace!("Create new file failed"))?;
+        path.pop();
+
+        path.push(name);
+        path.set_extension("txn");
+        fs::copy(&pool_config.genesis_txn, path.as_path())
+            .map_err(map_err_trace!("Copy file failed"))?;
 
         f.write(
             serde_json::to_string(&pool_config)
