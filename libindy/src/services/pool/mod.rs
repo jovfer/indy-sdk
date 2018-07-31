@@ -81,22 +81,29 @@ impl PoolService {
                 CommonError::InvalidStructure("Invalid Genesis Transaction file".to_string())));
         }
 
-        fs::create_dir_all(path.as_path()).map_err(map_err_trace!())?;
+        fs::create_dir_all(path.as_path())
+            .map_err(map_err_trace!("Create dir failed"))?;
 
         path.push(name);
         path.set_extension("txn");
-        fs::copy(&pool_config.genesis_txn, path.as_path()).map_err(map_err_trace!())?;
+        fs::copy(&pool_config.genesis_txn, path.as_path())
+            .map_err(map_err_trace!("Copy file failed"))?;
         path.pop();
 
         path.push("config");
         path.set_extension("json");
-        let mut f: fs::File = fs::File::create(path.as_path()).map_err(map_err_trace!())?;
+        let mut f: fs::File = fs::File::create(path.as_path())
+            .map_err(map_err_trace!("Create new file failed"))?;
 
-        f.write(serde_json::to_string(&pool_config)
-            .map_err(|err|
-                CommonError::InvalidState(format!("Can't serialize pool config: {}", err.description()))).map_err(map_err_trace!())?
-            .as_bytes()).map_err(map_err_trace!())?;
-        f.flush().map_err(map_err_trace!())?;
+        f.write(
+            serde_json::to_string(&pool_config)
+                .map_err(|err|
+                    CommonError::InvalidState(format!("Can't serialize pool config: {}", err.description())))
+                .map_err(map_err_trace!("Config serialization failed"))?
+                .as_bytes())
+            .map_err(map_err_trace!("Write to file failed"))?;
+        f.flush()
+            .map_err(map_err_trace!("Flush file failed"))?;
 
         // TODO probably create another one file pool.json with pool description,
         // but now there is no info to save (except name witch equal to directory)

@@ -75,16 +75,18 @@ fn _from_cache(file_name: &PathBuf) -> Result<MerkleTree, PoolError> {
 fn _from_genesis(file_name: &PathBuf) -> Result<MerkleTree, PoolError> {
     let mut mt = MerkleTree::from_vec(Vec::new()).map_err(map_err_trace!())?;
 
-    let f = fs::File::open(file_name).map_err(map_err_trace!())?;
+    let f = fs::File::open(file_name).map_err(map_err_trace!("Open file failed"))?;
 
     let reader = io::BufReader::new(&f);
     for line in reader.lines() {
-        let line: String = line.map_err(map_err_trace!())?.trim().to_string();
+        let line: String = line.map_err(map_err_trace!("Iteration over lines failed"))?.trim().to_string();
         if line.is_empty() { continue };
         let genesis_txn: SJsonValue = serde_json::from_str(line.as_str())
-            .map_err(|err| CommonError::InvalidStructure(format!("Can't deserialize Genesis Transaction file: {:?}", err)))?;
+            .map_err(|err| CommonError::InvalidStructure(format!("Can't deserialize Genesis Transaction file: {:?}", err)))
+            .map_err(map_err_trace!())?;
         let bytes = rmp_serde::encode::to_vec_named(&genesis_txn)
-            .map_err(|err| CommonError::InvalidStructure(format!("Can't deserialize Genesis Transaction file: {:?}", err)))?;
+            .map_err(|err| CommonError::InvalidStructure(format!("Can't deserialize Genesis Transaction file: {:?}", err)))
+            .map_err(map_err_trace!())?;
         mt.append(bytes).map_err(map_err_trace!())?;
     }
     Ok(mt)
