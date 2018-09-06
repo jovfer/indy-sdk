@@ -146,7 +146,7 @@ impl<T: Networker> From<StartState<T>> for SingleState<T> {
             denied_nodes: HashSet::new(),
             replies: HashMap::new(),
             timeout_nodes: HashSet::new(),
-            networker: state.networker.clone(),
+            networker: state.networker,
         }
     }
 }
@@ -157,7 +157,7 @@ impl<T: Networker> From<StartState<T>> for ConsensusState<T> {
             denied_nodes: HashSet::new(),
             replies: HashMap::new(),
             timeout_nodes: HashSet::new(),
-            networker: state.networker.clone(),
+            networker: state.networker,
         }
     }
 }
@@ -166,7 +166,7 @@ impl<T: Networker> From<(MerkleTree, StartState<T>)> for CatchupConsensusState<T
     fn from((merkle_tree, state): (MerkleTree, StartState<T>)) -> Self {
         CatchupConsensusState {
             replies: HashMap::new(),
-            networker: state.networker.clone(),
+            networker: state.networker,
             merkle_tree,
         }
     }
@@ -177,7 +177,7 @@ impl<T: Networker> From<(MerkleTree, StartState<T>, Vec<u8>, usize, String)> for
         CatchupSingleState {
             target_mt_root,
             target_mt_size,
-            networker: state.networker.clone(),
+            networker: state.networker,
             merkle_tree,
             req_id,
         }
@@ -189,7 +189,7 @@ impl<T: Networker> From<StartState<T>> for FullState<T> {
         FullState {
             accum_reply: None,
             nodes_to_send: None,
-            networker: state.networker.clone(),
+            networker: state.networker,
         }
     }
 }
@@ -199,7 +199,7 @@ impl<T: Networker> From<(Option<Vec<String>>, StartState<T>)> for FullState<T> {
         FullState {
             accum_reply: None,
             nodes_to_send,
-            networker: state.networker.clone(),
+            networker: state.networker,
         }
     }
 }

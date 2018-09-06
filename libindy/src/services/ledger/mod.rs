@@ -450,7 +450,7 @@ impl LedgerService {
 
         let cred_def = match reply.result() {
             GetCredDefReplyResult::GetCredDefReplyResultV0(res) => CredentialDefinitionV1 {
-                id: CredentialDefinition::cred_def_id(&res.origin, &res.ref_.to_string(), &res.signature_type.to_str(), &res.tag.clone().unwrap_or(String::new())),
+                id: CredentialDefinition::cred_def_id(&res.origin, &res.ref_.to_string(), &res.signature_type.to_str(), res.tag.as_ref().map(String::as_str).unwrap_or("")),
                 schema_id: res.ref_.to_string(),
                 signature_type: res.signature_type,
                 tag: res.tag.unwrap_or(String::new()),
@@ -526,7 +526,7 @@ impl LedgerService {
             GetRevocRegDeltaReplyResult::GetRevocRegDeltaReplyResultV1(res) => (res.txn.data.revoc_reg_def_id, res.txn.data.value),
         };
 
-        let res = (revoc_reg_def_id.clone(),
+        let res = (revoc_reg_def_id,
                    serde_json::to_string(&RevocationRegistryDelta::RevocationRegistryDeltaV1(
                        RevocationRegistryDeltaV1 {
                            value: CryproRevocationRegistryDelta::from_parts(revoc_reg.value.accum_from.map(|accum| accum.value).as_ref(),

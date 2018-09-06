@@ -443,7 +443,7 @@ mod tests {
         let did = Some("NcYxiDXkpYi6ov5FcYDi1e".to_string());
         let crypto_type = Some("type".to_string());
 
-        let did_info = MyDidInfo { did: did.clone(), cid: None, seed: None, crypto_type: crypto_type };
+        let did_info = MyDidInfo { did, cid: None, seed: None, crypto_type: crypto_type };
 
         assert!(service.create_my_did(&did_info).is_err());
     }
@@ -571,7 +571,7 @@ mod tests {
         let msg = "some message";
         let did_info = MyDidInfo { did: None, cid: None, seed: None, crypto_type: None };
         let (_, my_key) = service.create_my_did(&did_info).unwrap();
-        let (their_did, _) = service.create_my_did(&did_info.clone()).unwrap();
+        let (their_did, _) = service.create_my_did(&did_info).unwrap();
         let their_did = Did::new(their_did.did, their_did.verkey);
         service.encrypt(&my_key, &their_did.verkey, msg.as_bytes()).unwrap();
     }
@@ -586,13 +586,13 @@ mod tests {
 
         let (my_did, my_key) = service.create_my_did(&did_info).unwrap();
 
-        let my_key_for_encrypt = my_key.clone();
+        let my_key_for_encrypt = my_key;
 
         let their_did_for_decrypt = Did::new(my_did.did, my_did.verkey);
 
-        let (their_did, their_key) = service.create_my_did(&did_info.clone()).unwrap();
+        let (their_did, their_key) = service.create_my_did(&did_info).unwrap();
 
-        let my_key_for_decrypt = their_key.clone();
+        let my_key_for_decrypt = their_key;
 
         let their_did_for_encrypt = Did::new(their_did.did, their_did.verkey);
 
@@ -614,12 +614,12 @@ mod tests {
 
         let (my_did, my_key) = service.create_my_did(&did_info).unwrap();
 
-        let my_key_for_encrypt = my_key.clone();
+        let my_key_for_encrypt = my_key;
 
         let their_did_for_decrypt = Did::new(my_did.did, my_did.verkey);
 
-        let (their_did, their_key) = service.create_my_did(&did_info.clone()).unwrap();
-        let my_key_for_decrypt = their_key.clone();
+        let (their_did, their_key) = service.create_my_did(&did_info).unwrap();
+        let my_key_for_decrypt = their_key;
 
         let their_did_for_encrypt = Did::new(their_did.did, their_did.verkey);
 
@@ -637,7 +637,7 @@ mod tests {
         let service = CryptoService::new();
         let msg = "some message";
         let did_info = MyDidInfo { did: None, cid: None, seed: None, crypto_type: None };
-        let (did, _) = service.create_my_did(&did_info.clone()).unwrap();
+        let (did, _) = service.create_my_did(&did_info).unwrap();
         let did = Did::new(did.did, did.verkey);
         service.encrypt_sealed(&did.verkey, msg.as_bytes()).unwrap();
     }
@@ -647,8 +647,8 @@ mod tests {
         let service = CryptoService::new();
         let msg = "some message".as_bytes();
         let did_info = MyDidInfo { did: None, cid: None, seed: None, crypto_type: None };
-        let (did, key) = service.create_my_did(&did_info.clone()).unwrap();
-        let encrypt_did = Did::new(did.did.clone(), did.verkey.clone());
+        let (did, key) = service.create_my_did(&did_info).unwrap();
+        let encrypt_did = Did::new(did.did, did.verkey);
         let encrypted_message = service.encrypt_sealed(&encrypt_did.verkey, msg).unwrap();
         let decrypted_message = service.decrypt_sealed(&key, &encrypted_message).unwrap();
         assert_eq!(msg, decrypted_message.as_slice());
