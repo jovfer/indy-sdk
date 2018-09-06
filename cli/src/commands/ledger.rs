@@ -1466,7 +1466,7 @@ pub struct ReplyResult<T> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use utils::test::TestUtils;
+    use utils::test;
     use commands::wallet::tests::{create_and_open_wallet, close_and_delete_wallet, open_wallet, close_wallet};
     use commands::pool::tests::{create_and_connect_pool, disconnect_and_delete_pool};
     use commands::did::tests::{new_did, use_did, SEED_TRUSTEE, DID_TRUSTEE, SEED_MY1, DID_MY1, VERKEY_MY1, SEED_MY3, DID_MY3, VERKEY_MY3};
@@ -1511,7 +1511,7 @@ pub mod tests {
 
         #[test]
         pub fn nym_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1529,12 +1529,12 @@ pub mod tests {
             _ensure_nym_added(&ctx, DID_MY1);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_role() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1553,13 +1553,13 @@ pub mod tests {
             _ensure_nym_added(&ctx, DID_MY1);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn nym_works_for_set_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1584,13 +1584,13 @@ pub mod tests {
             _ensure_nym_added(&ctx, DID_MY1);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn nym_works_for_set_fees_with_input_amount_lower_fee() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1612,14 +1612,14 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn nym_works_for_set_fees_with_input_amount_lower_fee_plus_output() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1642,12 +1642,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_wrong_role() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1665,12 +1665,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1684,12 +1684,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_no_opened_wallet() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1707,12 +1707,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_no_connected_pool() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1730,12 +1730,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn nym_works_for_unknown_submitter() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1752,7 +1752,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -1761,7 +1761,7 @@ pub mod tests {
 
         #[test]
         pub fn get_nym_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1779,12 +1779,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_nym_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1799,12 +1799,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_nym_works_for_unknown_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1821,7 +1821,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -1830,7 +1830,7 @@ pub mod tests {
 
         #[test]
         pub fn attrib_works_for_raw_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1851,12 +1851,12 @@ pub mod tests {
             _ensure_attrib_added(&ctx, DID_MY1, Some(ATTRIB_RAW_DATA), None, None);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_hash_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1878,12 +1878,12 @@ pub mod tests {
             _ensure_attrib_added(&ctx, DID_MY1, None, Some(ATTRIB_HASH_DATA), None);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_enc_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1905,13 +1905,13 @@ pub mod tests {
             _ensure_attrib_added(&ctx, DID_MY1, None, None, Some(ATTRIB_ENC_DATA));
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn attrib_works_for_set_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1934,13 +1934,13 @@ pub mod tests {
             _ensure_attrib_added(&ctx, &did, Some(ATTRIB_RAW_DATA), None, None);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn attrib_works_for_set_fees_input_amount_lower_fee() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1961,12 +1961,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_missed_attribute() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1985,12 +1985,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2004,12 +2004,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_unknown_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2026,12 +2026,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn attrib_works_for_invalid_endpoint_format() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2051,7 +2051,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2060,7 +2060,7 @@ pub mod tests {
 
         #[test]
         pub fn get_attrib_works_for_raw_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2088,12 +2088,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_attrib_works_for_hash_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2121,12 +2121,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_attrib_works_for_enc_value() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2154,12 +2154,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_attrib_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2192,7 +2192,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2201,7 +2201,7 @@ pub mod tests {
 
         #[test]
         pub fn schema_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2219,13 +2219,13 @@ pub mod tests {
             _ensure_schema_added(&ctx, &did);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn schema_works_for_set_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2249,13 +2249,13 @@ pub mod tests {
             _ensure_schema_added(&ctx, &did);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn schema_works_for_set_fees_input_amount_lower_fee() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2277,12 +2277,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_for_missed_required_params() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2298,12 +2298,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_unknown_submitter() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2321,12 +2321,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2341,7 +2341,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2350,7 +2350,7 @@ pub mod tests {
 
         #[test]
         pub fn get_validator_info_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2365,12 +2365,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_validator_info_works_for_nodes() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2386,12 +2386,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_validator_info_works_for_unknown_node() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2407,12 +2407,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_validator_info_works_for_timeout() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2429,7 +2429,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2438,7 +2438,7 @@ pub mod tests {
 
         #[test]
         pub fn get_schema_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2464,12 +2464,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_for_unknown_schema() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2487,12 +2487,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_for_unknown_submitter() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2510,12 +2510,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn schema_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2546,7 +2546,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2555,7 +2555,7 @@ pub mod tests {
 
         #[test]
         pub fn cred_def_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2574,13 +2574,13 @@ pub mod tests {
             _ensure_cred_def_added(&ctx, &did, &schema_id);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn cred_def_works_for_set_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2606,13 +2606,13 @@ pub mod tests {
             _ensure_cred_def_added(&ctx, &did, &schema_id);
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         #[cfg(feature = "nullpay_plugin")]
         pub fn cred_def_works_for_set_fees_input_amount_lower_fee() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2636,12 +2636,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn cred_def_works_for_missed_required_params() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2657,12 +2657,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn cred_def_works_for_unknown_submitter() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2681,12 +2681,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn cred_def_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2702,7 +2702,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2711,7 +2711,7 @@ pub mod tests {
 
         #[test]
         pub fn get_cred_def_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2741,12 +2741,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_cred_def_works_for_unknown_cred_def() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2765,12 +2765,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_cred_def_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2805,7 +2805,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2814,7 +2814,7 @@ pub mod tests {
 
         #[test]
         pub fn node_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             let my_seed = "00000000000000000000000MySTEWARD";
@@ -2845,7 +2845,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2854,7 +2854,7 @@ pub mod tests {
 
         #[test]
         pub fn pool_config_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -2876,7 +2876,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2885,7 +2885,7 @@ pub mod tests {
 
         #[test]
         pub fn pool_restart_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let datetime = r#"2020-01-25T12:49:05.258870+00:00"#;
 
             let ctx = CommandContext::new();
@@ -2904,12 +2904,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn pool_restart_works_for_nodes() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let datetime = r#"2020-01-25T12:49:05.258870+00:00"#;
 
             let ctx = CommandContext::new();
@@ -2929,12 +2929,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn pool_restart_works_for_timeout() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let datetime = r#"2020-01-25T12:49:05.258870+00:00"#;
 
             let ctx = CommandContext::new();
@@ -2955,7 +2955,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -2965,7 +2965,7 @@ pub mod tests {
         #[test]
         #[ignore]
         pub fn pool_upgrade_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let schedule = r#"{"Gw6pDLhcBcoQesN72qfotTgFa7cbuqZpkX3Xo6pLhPhv":"2020-01-25T12:49:05.258870+00:00",
                                     "8ECVSk179mjsjKRLWiQtssMLgp6EPhWXtaYyStWPSGAb":"2020-01-25T13:49:05.258870+00:00",
                                     "DKVxG2fXXTU8yT5N7hGEbXB3dfdAnYv1JczDUHpmDxya":"2020-01-25T14:49:05.258870+00:00",
@@ -3003,7 +3003,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -3033,7 +3033,7 @@ pub mod tests {
 
         #[test]
         pub fn custom_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3049,12 +3049,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn custom_works_for_sign() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3071,12 +3071,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn custom_works_for_missed_txn_field() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3091,12 +3091,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn custom_works_for_invalid_transaction_format() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3116,12 +3116,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn custom_works_for_no_opened_pool() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3135,13 +3135,13 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
 
         #[test]
         pub fn custom_works_for_sign_without_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3157,12 +3157,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn custom_works_for_unknown_submitter_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3179,7 +3179,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -3189,7 +3189,7 @@ pub mod tests {
 
         #[test]
         pub fn get_payment_sources_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3206,12 +3206,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_no_sources() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3227,12 +3227,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_unknown_payment_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3248,12 +3248,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_invalid_payment_address() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3269,12 +3269,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_no_active_wallet() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3286,12 +3286,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3305,12 +3305,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_payment_sources_works_for_extra() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3333,7 +3333,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -3343,7 +3343,7 @@ pub mod tests {
 
         #[test]
         pub fn payment_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3363,12 +3363,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_extra() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3389,12 +3389,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_multiple_inputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3418,12 +3418,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_one_input_and_multiple_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3445,12 +3445,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_multiple_inputs_and_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3475,12 +3475,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_not_enough_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3500,12 +3500,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_unknown_input() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3522,12 +3522,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_unknown_payment_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3544,12 +3544,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_incompatible_payment_methods() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3566,12 +3566,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_empty_inputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3588,12 +3588,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_empty_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3610,12 +3610,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_invalid_inputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3632,12 +3632,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_invalid_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3661,12 +3661,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_several_equal_inputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3683,12 +3683,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_negative_inputs_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3705,12 +3705,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn payment_works_for_negative_outputs_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3730,7 +3730,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -3740,7 +3740,7 @@ pub mod tests {
 
         #[test]
         pub fn get_fees_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3757,12 +3757,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_fees_works_for_no_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3778,12 +3778,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_fees_works_for_unknown_payment_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3799,12 +3799,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_fees_works_for_no_active_wallet() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3816,12 +3816,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn get_fees_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -3836,7 +3836,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -3846,7 +3846,7 @@ pub mod tests {
 
         #[test]
         pub fn mint_prepare_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3860,12 +3860,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_big_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3879,12 +3879,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_extra() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3899,12 +3899,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_multiple_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3918,12 +3918,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_empty_outputs() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3937,12 +3937,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_unknown_payment_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3956,12 +3956,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_invalid_outputs_format() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3975,12 +3975,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_invalid_payment_address() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -3994,12 +3994,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_incompatible_payment_methods() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4013,12 +4013,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_negative_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4032,12 +4032,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn mint_prepare_works_for_multiple_outputs_negative_amount_for_second() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4051,7 +4051,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -4061,7 +4061,7 @@ pub mod tests {
 
         #[test]
         pub fn set_fees_prepare_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4078,12 +4078,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn set_fees_prepare_works_for_unknown_payment_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4100,12 +4100,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn set_fees_prepare_works_for_invalid_fees_format() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4122,12 +4122,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn set_fees_prepare_works_for_empty_fees() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4144,12 +4144,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn set_fees_prepare_works_for_no_active_wallet() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4162,12 +4162,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn set_fees_prepare_works_for_negative_amount() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4184,7 +4184,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -4194,7 +4194,7 @@ pub mod tests {
 
         #[test]
         pub fn verify_payment_receipts_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4213,12 +4213,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn verify_payment_receipts_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4242,12 +4242,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn verify_payment_receipts_works_for_not_found() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4263,12 +4263,12 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn verify_payment_receipts_works_for_invalid_receipt() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_connect_pool(&ctx);
@@ -4284,7 +4284,7 @@ pub mod tests {
             }
             close_and_delete_wallet(&ctx);
             disconnect_and_delete_pool(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -4293,7 +4293,7 @@ pub mod tests {
 
         #[test]
         pub fn sign_multi_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4306,12 +4306,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn sign_multi_works_for_no_active_did() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4322,12 +4322,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn sign_multi_works_for_invalid_message_format() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -4340,7 +4340,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 

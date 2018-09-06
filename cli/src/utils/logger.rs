@@ -2,7 +2,7 @@ extern crate log4rs;
 extern crate log;
 extern crate libc;
 
-use utils::cstring::CStringUtils;
+use utils::cstring;
 
 use self::log::{Record, Metadata, Level};
 use self::libc::{c_void, c_char};
@@ -27,7 +27,7 @@ impl IndyCliLogger {
                              level: u32,
                              target: *const c_char) -> bool {
         let level = get_level(level);
-        let target = CStringUtils::c_str_to_string(target).unwrap().unwrap();
+        let target = cstring::c_str_to_string(target).unwrap().unwrap();
 
         let metadata: Metadata = Metadata::builder()
             .level(level)
@@ -44,10 +44,10 @@ impl IndyCliLogger {
                      module_path: *const c_char,
                      file: *const c_char,
                      line: u32) {
-        let target = CStringUtils::c_str_to_string(target).unwrap().unwrap();
-        let args = CStringUtils::c_str_to_string(args).unwrap().unwrap();
-        let module_path = CStringUtils::c_str_to_string(module_path).unwrap();
-        let file = CStringUtils::c_str_to_string(file).unwrap();
+        let target = cstring::c_str_to_string(target).unwrap().unwrap();
+        let args = cstring::c_str_to_string(args).unwrap().unwrap();
+        let module_path = cstring::c_str_to_string(module_path).unwrap();
+        let file = cstring::c_str_to_string(file).unwrap();
         let level = get_level(level);
 
         log::logger().log(

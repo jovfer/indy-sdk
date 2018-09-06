@@ -199,11 +199,11 @@ pub mod tests {
 
     mod load {
         use super::*;
-        use utils::test::TestUtils;
+        use utils::test;
 
         #[test]
         pub fn load_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             let cmd = load_plugin_command::new();
@@ -212,7 +212,7 @@ pub mod tests {
             params.insert("initializer", NULL_PAYMENT_PLUGIN_INIT_FUNCTION.to_string());
             cmd.execute(&ctx, &params).unwrap();
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]

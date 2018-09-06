@@ -1,6 +1,6 @@
 use super::ErrorCode;
 
-use utils::sequence::SequenceUtils;
+use utils::sequence;
 
 use libc::c_char;
 
@@ -29,7 +29,7 @@ pub fn _closure_to_cb_ec() -> (Receiver<ErrorCode>, i32,
     }
 
     let mut callbacks = CALLBACKS.lock().unwrap();
-    let command_handle = SequenceUtils::get_next_id();
+    let command_handle = sequence::get_next_id();
     callbacks.insert(command_handle, closure);
 
     (receiver, command_handle, Some(_callback))
@@ -55,7 +55,7 @@ pub fn _closure_to_cb_ec_i32() -> (Receiver<(ErrorCode, i32)>, i32,
     }
 
     let mut callbacks = CALLBACKS.lock().unwrap();
-    let command_handle = SequenceUtils::get_next_id();
+    let command_handle = sequence::get_next_id();
     callbacks.insert(command_handle, closure);
 
     (receiver, command_handle, Some(_callback))
@@ -83,7 +83,7 @@ pub fn _closure_to_cb_ec_string() -> (Receiver<(ErrorCode, String)>, i32,
     }
 
     let mut callbacks = CALLBACKS.lock().unwrap();
-    let command_handle = SequenceUtils::get_next_id();
+    let command_handle = sequence::get_next_id();
     callbacks.insert(command_handle, closure);
 
     (receiver, command_handle, Some(_callback))
@@ -113,7 +113,7 @@ pub fn _closure_to_cb_ec_string_string() -> (Receiver<(ErrorCode, String, String
     }
 
     let mut callbacks = CALLBACKS.lock().unwrap();
-    let command_handle = SequenceUtils::get_next_id();
+    let command_handle = sequence::get_next_id();
     callbacks.insert(command_handle, closure);
 
     (receiver, command_handle, Some(_callback))

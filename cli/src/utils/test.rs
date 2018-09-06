@@ -1,26 +1,23 @@
-use utils::environment::EnvironmentUtils;
+use utils::environment;
 
 use std::fs;
 
-pub struct TestUtils {}
-
-impl TestUtils {
-    pub fn cleanup_indy_home() {
-        let path = EnvironmentUtils::indy_home_path();
-        if path.exists() {
-            fs::remove_dir_all(path).unwrap();
-        }
-    }
-
-    pub fn cleanup_temp() {
-        let path = EnvironmentUtils::tmp_path();
-        if path.exists() {
-            fs::remove_dir_all(path).unwrap();
-        }
-    }
-
-    pub fn cleanup_storage() {
-        TestUtils::cleanup_indy_home();
-        TestUtils::cleanup_temp();
+pub fn cleanup_indy_home() {
+    let path = environment::indy_home_path();
+    if path.exists() {
+        fs::remove_dir_all(path).unwrap();
     }
 }
+
+pub fn cleanup_temp() {
+    let path = environment::tmp_path();
+    if path.exists() {
+        fs::remove_dir_all(path).unwrap();
+    }
+}
+
+pub fn cleanup_storage() {
+    cleanup_indy_home();
+    cleanup_temp();
+}
+

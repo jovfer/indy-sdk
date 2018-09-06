@@ -10,7 +10,7 @@ use serde_json::Map as JSONMap;
 
 use std::fs;
 use std::fs::File;
-use utils::environment::EnvironmentUtils;
+use utils::environment;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
@@ -389,7 +389,7 @@ pub mod import_command {
 }
 
 fn _wallets_path() -> PathBuf {
-    let mut path = EnvironmentUtils::indy_home_path();
+    let mut path = environment::indy_home_path();
     path.push("wallets");
     path
 }
@@ -467,8 +467,7 @@ fn map_key_derivation_method(key: Option<&str>) -> Result<&'static str, ()> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use utils::test::TestUtils;
-    use utils::environment::EnvironmentUtils;
+    use utils::test;
     use std::path::PathBuf;
 
     const WALLET: &'static str = "wallet";
@@ -480,7 +479,7 @@ pub mod tests {
 
         #[test]
         pub fn create_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             {
                 let cmd = create_command::new();
@@ -496,12 +495,12 @@ pub mod tests {
             assert_eq!(wallets[0]["id"].as_str().unwrap(), WALLET);
 
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn create_works_for_twice() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -513,7 +512,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
@@ -525,12 +524,12 @@ pub mod tests {
                 params.insert("name", WALLET.to_string());
                 cmd.execute(&ctx, &params).unwrap_err();
             }
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn create_works_for_type() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             let storage_type = "default";
@@ -550,12 +549,12 @@ pub mod tests {
             assert_eq!(wallets[0]["storage_type"].as_str().unwrap(), storage_type);
 
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn create_works_for_config() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             let config = r#"{"key":"value","key2":"value2"}"#;
             {
@@ -575,12 +574,12 @@ pub mod tests {
                        serde_json::from_str::<serde_json::Value>(config).unwrap().as_object().unwrap());
 
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn create_works_for_key_derivation_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             {
                 let cmd = create_command::new();
@@ -597,12 +596,12 @@ pub mod tests {
             assert_eq!(wallets[0]["id"].as_str().unwrap(), WALLET);
 
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn create_works_for_wrong_export_key_derivation_method() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             {
                 let cmd = create_command::new();
@@ -613,7 +612,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -622,7 +621,7 @@ pub mod tests {
 
         #[test]
         pub fn open_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -636,12 +635,12 @@ pub mod tests {
             ensure_opened_wallet_handle(&ctx).unwrap();
             close_and_delete_wallet(&ctx);
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn open_works_for_twice() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -653,12 +652,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap(); //TODO: we close and open same wallet
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn open_works_for_not_created() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
 
             let cmd = open_command::new();
             let mut params = CommandParams::new();
@@ -666,7 +665,7 @@ pub mod tests {
             params.insert("key", WALLET_KEY.to_string());
             cmd.execute(&CommandContext::new(), &params).unwrap_err();
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
@@ -704,7 +703,7 @@ pub mod tests {
 
         #[test]
         pub fn list_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -714,19 +713,19 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap();
             }
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn list_works_for_empty_list() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             {
                 let cmd = list_command::new();
                 let params = CommandParams::new();
                 cmd.execute(&ctx, &params).unwrap();
             }
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -735,7 +734,7 @@ pub mod tests {
 
         #[test]
         pub fn close_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -746,12 +745,12 @@ pub mod tests {
             }
             ensure_opened_wallet_handle(&ctx).unwrap_err();
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn close_works_for_not_opened() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -761,12 +760,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn close_works_for_twice() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
             create_and_open_wallet(&ctx);
             {
@@ -780,7 +779,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -789,7 +788,7 @@ pub mod tests {
 
         #[test]
         pub fn delete_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -803,12 +802,12 @@ pub mod tests {
             let wallets = _list_wallets();
             assert_eq!(0, wallets.len());
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn delete_works_for_not_created() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
 
             let cmd = delete_command::new();
             let mut params = CommandParams::new();
@@ -816,12 +815,12 @@ pub mod tests {
             params.insert("key", WALLET_KEY.to_string());
             cmd.execute(&CommandContext::new(), &params).unwrap_err();
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn delete_works_for_opened() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -833,12 +832,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn delete_works_for_wrong_key() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_wallet(&ctx);
@@ -849,7 +848,7 @@ pub mod tests {
                 params.insert("key", "other_key".to_string());
                 cmd.execute(&ctx, &params).unwrap_err();
             }
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -858,7 +857,7 @@ pub mod tests {
 
         #[test]
         pub fn export_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -874,12 +873,12 @@ pub mod tests {
             assert!(path.exists());
 
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn export_works_for_file_already_exists() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -894,7 +893,7 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -904,7 +903,7 @@ pub mod tests {
 
         #[test]
         pub fn import_works() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -948,12 +947,12 @@ pub mod tests {
                 cmd.execute(&CommandContext::new(), &params).unwrap();
             }
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn import_works_for_not_found_file() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             let (_, path_str) = export_wallet_path();
@@ -968,12 +967,12 @@ pub mod tests {
                 cmd.execute(&ctx, &params).unwrap_err();
             }
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn import_works_for_other_key() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -996,12 +995,12 @@ pub mod tests {
             }
 
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn import_works_for_duplicate_name() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1021,12 +1020,12 @@ pub mod tests {
             }
 
             close_and_delete_wallet(&ctx);
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn import_works_for_config() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             create_and_open_wallet(&ctx);
@@ -1059,12 +1058,12 @@ pub mod tests {
             assert_eq!(wallets[0]["storage_config"].as_object().unwrap(),
                        serde_json::from_str::<serde_json::Value>(config).unwrap().as_object().unwrap());
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
 
         #[test]
         pub fn import_works_for_different_key_derivation_methods() {
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
             let ctx = CommandContext::new();
 
             {
@@ -1149,7 +1148,7 @@ pub mod tests {
                 cmd.execute(&CommandContext::new(), &params).unwrap();
             }
 
-            TestUtils::cleanup_storage();
+            test::cleanup_storage();
         }
     }
 
@@ -1227,7 +1226,7 @@ pub mod tests {
     }
 
     pub fn export_wallet_path() -> (PathBuf, String) {
-        let path = EnvironmentUtils::tmp_file_path("export_file");
+        let path = environment::tmp_file_path("export_file");
         (path.clone(), path.to_str().unwrap().to_string())
     }
 
