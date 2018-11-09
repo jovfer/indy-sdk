@@ -422,19 +422,17 @@ def linuxVCXTesting(env_name, network_name, testEnv) {
     unstash name: "LibindyVCXSO${env_name}"
     unstash name: "LibnullpayVCXSO${env_name}"
 
-    dir('vcx/libvcx') {
-        testEnv.inside {
-            echo "${env_name} Libvcx Test: Test"
+    testEnv.inside {
+        echo "${env_name} Libvcx Test: Test"
 
-            echo "${env_name} Libvcx Test: Build"
-            sh "LIBRARY_PATH=./ cargo build --features fatal_warnings"
+        echo "${env_name} Libvcx Test: Build"
+        sh "cd vcx/libvcx && LIBRARY_PATH=./vcx/libvcx/ cargo build --features fatal_warnings"
 
-            echo "${env_name} Libvcx Test: Build Test"
-            sh "LIBRARY_PATH=./ RUST_BACKTRACE=1 cargo test --no-run"
+        echo "${env_name} Libvcx Test: Build Test"
+        sh "cd vcx/libvcx && LIBRARY_PATH=./vcx/libvcx/ RUST_BACKTRACE=1 cargo test --no-run"
 
-            echo "${env_name} Libvcx Test: Run tests"
-            sh 'LIBRARY_PATH=./ LD_LIBRARY_PATH=./:${LD_LIBRARY_PATH} RUST_BACKTRACE=1 RUST_LOG=debug RUST_TEST_THREADS=1 cargo test'
-        }
+        echo "${env_name} Libvcx Test: Run tests"
+        sh 'cd vcx/libvcx && LIBRARY_PATH=./vcx/libvcx/ LD_LIBRARY_PATH=./vcx/libvcx/:${LD_LIBRARY_PATH} RUST_BACKTRACE=1 RUST_LOG=debug RUST_TEST_THREADS=1 cargo test'
     }
 }
 
