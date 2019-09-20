@@ -1,6 +1,7 @@
 #[allow(unused_macros)]
 macro_rules! init {
     ($x:expr) => (
+    ::utils::libindy::logger::set_default_logger(None).unwrap();
     ::utils::threadpool::init();
     ::settings::clear_config();
     ::settings::set_config_value(::settings::CONFIG_WALLET_KEY,::settings::DEFAULT_WALLET_KEY);
