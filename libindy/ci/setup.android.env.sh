@@ -61,6 +61,10 @@ create_avd(){
             "platforms;android-24" \
             "system-images;android-24;default;${ABI}"
 
+    curl -o emu.zip https://dl.google.com/android/repository/emulator-linux-5889189.zip
+    rm -rf emulator
+    unzip emu.zip
+
     echo "${BLUE}Creating android emulator${RESET}"
 
         echo "no" |
