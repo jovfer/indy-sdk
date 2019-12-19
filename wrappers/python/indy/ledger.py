@@ -1552,7 +1552,7 @@ async def build_txn_author_agreement_request(submitter_did: str,
 
 async def build_disable_all_txn_author_agreements_request(submitter_did: str) -> str:
     """
-    Builds a DISABLE_ALL_TXN_AUTHR_AGRMTS request. Request to disable all Transaction Author Agreement on the ledger.
+    Builds a TRANSACTION_AUTHOR_AGREEMENT_DISABLE request. Request to disable all Transaction Author Agreement on the ledger.
 
     EXPERIMENTAL
 

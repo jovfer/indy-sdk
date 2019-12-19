@@ -2039,7 +2039,7 @@ Errors: `Common*`
 
 #### buildDisableAllTxnAuthorAgreementsRequest \( submitterDid \) -&gt; request
 
-Builds a DISABLE_ALL_TXN_AUTHR_AGRMTS request. 
+Builds a TRANSACTION_AUTHOR_AGREEMENT_DISABLE request. 
 Request to disable all Transaction Author Agreement on the ledger.
 
 EXPERIMENTAL

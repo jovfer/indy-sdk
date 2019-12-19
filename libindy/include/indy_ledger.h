@@ -1150,7 +1150,7 @@ extern "C" {
                                                                                      const char*   request_json)
                                                                );
 
-    /// Builds a DISABLE_ALL_TXN_AUTHR_AGRMTS request. Request to disable all Transaction Author Agreement on the ledger.
+    /// Builds a TRANSACTION_AUTHOR_AGREEMENT_DISABLE request. Request to disable all Transaction Author Agreement on the ledger.
     ///
     /// EXPERIMENTAL
     ///

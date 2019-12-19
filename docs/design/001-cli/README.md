@@ -412,7 +412,7 @@ Request to add a new version of Transaction Author Agreement to the ledger.
 ledger ledger txn-author-agreement [text=<agreement content>] [file=<file with agreement>] version=<version> [ratification-time=<timestamp>] [retirement-time=<timestamp>] [source_payment_address=<source_payment_address-value>] [fee=<fee-value>] [fees_inputs=<source-1,..,source-n>] [fees_outputs=(<recipient-1>,<amount>),..,(<recipient-n>,<amount>)] [extra=<extra>] [sign=<true or false>]  [send=<true or false>]
 ```
 
-#### DISABLE_ALL_TXN_AUTHR_AGRMTS transaction.
+#### TRANSACTION_AUTHOR_AGREEMENT_DISABLE transaction.
 Disable All Transaction Author Agreements on the ledger.
 ```
 ledger ledger disable-all-txn-author-agreements [source_payment_address=<source_payment_address-value>] [fee=<fee-value>] [fees_inputs=<source-1,..,source-n>] [fees_outputs=(<recipient-1>,<amount>),..,(<recipient-n>,<amount>)] [extra=<extra>] [sign=<true or false>]  [send=<true or false>]

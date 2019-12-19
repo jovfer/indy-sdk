@@ -1249,7 +1249,7 @@ fn _build_txn_author_agreement_request(command_handle: CommandHandle,
     })
 }
 
-/// Builds a DISABLE_ALL_TXN_AUTHR_AGRMTS request. Request to disable all Transaction Author Agreement on the ledger.
+/// Builds a TRANSACTION_AUTHOR_AGREEMENT_DISABLE request. Request to disable all Transaction Author Agreement on the ledger.
 ///
 /// # Arguments
 /// * `submitter_did` - Identifier (DID) of the transaction author as base58-encoded string.

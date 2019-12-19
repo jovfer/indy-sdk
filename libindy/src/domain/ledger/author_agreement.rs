@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use indy_api_types::validation::Validatable;
 
-use super::constants::{GET_TXN_AUTHR_AGRMT, GET_TXN_AUTHR_AGRMT_AML, TXN_AUTHR_AGRMT, TXN_AUTHR_AGRMT_AML, DISABLE_ALL_TXN_AUTHR_AGRMTS};
+use super::constants::{GET_TXN_AUTHR_AGRMT, GET_TXN_AUTHR_AGRMT_AML, TXN_AUTHR_AGRMT, TXN_AUTHR_AGRMT_AML, TRANSACTION_AUTHOR_AGREEMENT_DISABLE};
 
 #[derive(Serialize, PartialEq, Debug)]
 pub struct TxnAuthorAgreementOperation {
@@ -38,7 +38,7 @@ pub struct DisableAllTxnAuthorAgreementsOperation {
 impl DisableAllTxnAuthorAgreementsOperation {
     pub fn new() -> DisableAllTxnAuthorAgreementsOperation {
         DisableAllTxnAuthorAgreementsOperation {
-            _type: DISABLE_ALL_TXN_AUTHR_AGRMTS.to_string(),
+            _type: TRANSACTION_AUTHOR_AGREEMENT_DISABLE.to_string(),
         }
     }
 }
