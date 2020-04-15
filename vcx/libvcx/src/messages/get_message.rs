@@ -268,10 +268,17 @@ pub struct DeliveryDetails {
     last_updated_date_time: String,
 }
 
+/// Contains a message in unencrypted form, ready to be consumed
+/// by components that want a data structure embodying the intention
+/// of the sender.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(untagged)]
 pub enum MessagePayload {
+    /// Data is encoded per MsgPack conventions. See
+    /// PayloadV1 in payload.rs.
     V1(Vec<i8>),
+    /// Data is encoded using DIDComm's JSON conventions.
+    /// See PayloadV2 in payload.rs.
     V2(::serde_json::Value),
 }
 
@@ -350,6 +357,8 @@ impl Message {
         new_message
     }
 
+    /// V3 is encryption as implemented in Aries RFC 0019 with Aries Interop Profile 1.0
+    /// (https://j.mp/2Vd0kiN). Contrast PayloadV2 in payload.rs.
     fn _decrypt_v3_message(&self) -> VcxResult<::messages::payload::PayloadV1> {
         use v3::messages::a2a::A2AMessage;
         use v3::utils::encryption_envelope::EncryptionEnvelope;
@@ -498,10 +507,102 @@ mod tests {
     use std::time::Duration;
     use utils::devsetup::*;
 
+
+    fn get_test_msg(pay: Option<MessagePayload>, decrypted: Option<String>) -> Message {
+        Message {
+            status_code: MessageStatusCode::Received,
+            payload: pay,
+            sender_did: "did:example:abc".to_string(),
+            uid: "sample uid".to_string(),
+            msg_type: RemoteMessageType::ProofReq,
+            ref_msg_id: None,
+            delivery_details: Vec::new(),
+            decrypted_payload: decrypted
+        }
+    }
+
+    #[test]
+    fn decrypt_v3_works() {
+        use v3::utils::encryption_envelope::EncryptionEnvelope;
+        use v3::messages::trust_ping::ping::Ping;
+        use v3::messages::connection::did_doc;
+
+        let key = did_doc::Ed25519PublicKey {
+            id: "key1".to_string(),
+            type_: did_doc::KEY_TYPE.to_string(),
+            controller: "did:sov:7ATpy2GLMisCLrdUQRe8ki".to_string(),
+            // The controller value above (the DID), the public key
+            // below, and the following 2 values all go together.
+            // private key = ARffcjGeCJ5kcMp1rDUkqxfKNuyu6QC1UCpSTVnNdZck
+            // seed = 8c0ad75fe33cba5182224d3ffc4d71ca6670aaadd0fe85dfe78a2877e9247ca9
+            public_key_base_58: "4Mq6XxoPfRRLGQkPvCAEA8PUhkJqHZ8X1CQwy45yE8xv".to_string()
+        };
+        let mut ddoc = did_doc::DidDoc {
+            context: String::from(did_doc::CONTEXT),
+            id: "did:sov:7ATpy2GLMisCLrdUQRe8ki".to_string(),
+            public_key: Vec::new(),
+            authentication: Vec::new(),
+            service: Vec::new()
+        };
+        ddoc.public_key.push(key);
+
+        let ping = Ping::create().set_thread_id("this-is-a-fake-thread-id".to_string());
+        let envelope =
+            EncryptionEnvelope::create(&ping.to_a2a_message(),
+                                       Some("my key"),
+                                       &ddoc).unwrap();
+        // This is silly. There's got to be some simpler way to treat a vector of unsigned
+        // bytes as a vector of signed bytes, without all this nonsense. Perhaps it's something
+        // like this? https://stackoverflow.com/a/59707887 But that's super old. The compiler
+        // suggests using a From trait, but I can't figure out how to do it. Googling doesn't
+        // help, since "from" is treated as noise.
+        let mut v1_bytes: Vec<i8> = Vec::new();
+        for byte in envelope.0 {
+            v1_bytes.push(byte as i8);
+        }
+
+        let msg = get_test_msg(Some(MessagePayload::V1(v1_bytes)), None);
+        assert!(msg._decrypt_v3_message().is_ok());
+    }
+
+    #[test]
+    fn decrypt_already_decrypted_is_safe_no_op() {
+        let msg = get_test_msg(None, Some("hello".to_string()));
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_empty_payload_is_safe_no_op() {
+        let msg = get_test_msg(Some(MessagePayload::V1(Vec::new())), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v1_payload_fails_with_bad_verkey() {
+        let payload_bytes: Vec<i8> = (0..9).collect();
+        let payload = MessagePayload::V1(payload_bytes);
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v1_payload_fails_without_verkey() {
+        let payload_bytes: Vec<i8> = (0..9).collect();
+        let payload = MessagePayload::V1(payload_bytes);
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v2_payload_fails_with_bad_verkey() {
+        let payload = MessagePayload::V2(json!("{}"));
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
     #[test]
     fn test_parse_get_messages_response() {
         let _setup = SetupMocks::init();
-
         let result = GetMessagesBuilder::create_v1().parse_response(GET_MESSAGES_RESPONSE.to_vec()).unwrap();
         assert_eq!(result.len(), 3)
     }

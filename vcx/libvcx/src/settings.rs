@@ -388,13 +388,21 @@ pub enum Actors {
 
 pub const ARIES_COMMUNICATION_METHOD: &str = "aries";
 
-
+/// Protocols are related to payloads, but the relationship is
+/// messy. See detailed comments about the Payloads enum in
+/// payloads.rs.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ProtocolTypes {
+    /// AFICT, V1 protocols are proprietary A2A protocols built
+    /// by Evernym using MsgPacked messages.
     #[serde(rename = "1.0")]
     V1,
+    /// AFICT, V2 protocols are early Indy protocols plus some
+    /// Evernym variants using JSON format, circa spring 2019.
     #[serde(rename = "2.0")]
     V2,
+    /// AFICT, V3 protocols are Aries protocols compatible with
+    /// AIP 1.0, early 2020.
     #[serde(rename = "3.0")]
     V3,
 }

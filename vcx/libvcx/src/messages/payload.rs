@@ -7,6 +7,33 @@ use error::prelude::*;
 use messages::thread::Thread;
 use serde_json::Value;
 
+/// A Payload mixes two concerns, which may not be ideal from a
+/// design perspective. However, I'm documenting its semantics for
+/// clarity; if you refactor (please!), make sure you update the
+/// comments here to keep them accurate. (See also comments on
+/// the Protocols enum in settings.rs.)
+///
+/// The first concern is message formatting. So far we've had two
+/// major approaches to message formatting. The first was based on
+/// MsgPack, and was invented in early 2018, when the Indy community
+/// was just beginning to understand the concept of A2A. The second
+/// was invented in late 2018 and substantially refined for an agent
+/// connectathon in spring 2019. It is JSON-oriented and reflects the
+/// conventions of DIDComm as embodied in Aries RFCs written in late
+/// 2018 and all of 2019. A third major approach is on the horizon,
+/// which is a modified JSON based on JWMs, as envisioned by DIF. None
+/// of the code here reflects the third mental model as of April 2020.
+/// This is likely to change in the future.
+///
+/// The second concern is encryption. We've had three evolutions in
+/// approach here. The first cut was Evernym-proprietary but pretty
+/// close to what later became Indy HIPE 0020. The second cut was Indy
+/// HIPE 0020. These two approaches are close enough that we haven't
+/// distinguished between them in the code. The third cut was Aries RFC
+/// 0019, which was broadly accepted by the Aries community and frozen
+/// in Aries Interop Profile 1.0. It is likely that a fourth cut will
+/// emerge, using JWEs and JWSes more canonically, as part of the
+/// DIDComm effort at DIF.
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 #[serde(untagged)]
 pub enum Payloads {
@@ -14,6 +41,10 @@ pub enum Payloads {
     PayloadV2(PayloadV2),
 }
 
+/// PayloadV1 is MsgPack'ed and is used with old, Evernym-proprietary
+/// A2A protocols that predate formalized protocol work in Indy
+/// HIPEs. It uses the very first impl of anoncrypt/authcrypt -- one
+/// that resembles but predates Indy HIPE 0020.
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 pub struct PayloadV1 {
     #[serde(rename = "@type")]
@@ -22,6 +53,11 @@ pub struct PayloadV1 {
     pub msg: String,
 }
 
+/// PayloadV12 is MsgPack'ed and is used with old, Evernym-proprietary
+/// A2A protocols that predate formalized protocol work in Indy
+/// HIPEs. However, it uses a standard impl of anoncrypt()/authcrypt() for
+/// encryption, as documented in Indy HIPE 0020 (https://j.mp/2K9RXhv).
+/// It was the first move toward community compatibility in libvcx.
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 pub struct PayloadV12 {
     #[serde(rename = "@type")]
@@ -30,6 +66,13 @@ pub struct PayloadV12 {
     pub msg: Value
 }
 
+/// PayloadV2 is JSON per Aries RFCs, and is used with Aries / DIDComm
+/// protocols. It also uses a standard impl of anoncrypt()/authcrypt() for
+/// encryption, as documented in Indy HIPE 0020 (https://j.mp/2K9RXhv).
+/// It is thus compatible with early community efforts, but not yet evolved
+/// enough for Aries Interop Profile 1.0. Contrast _decrypt_v3_message in
+/// get_message.rs, which supports Aries RFC 0019 as snapshotted for AIP 1.0
+/// (https://j.mp/2Vd0kiN).
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 pub struct PayloadV2 {
     #[serde(rename = "@type")]
@@ -58,7 +101,7 @@ impl Payloads {
                 let bytes = rmp_serde::to_vec_named(&payload)
                     .map_err(|err| {
                         error!("could not encode create_keys msg: {}", err);
-                        VcxError::from_msg(VcxErrorKind::InvalidMessagePack, format!("Cannot encrypt  payload: {}", err))
+                        VcxError::from_msg(VcxErrorKind::InvalidMessagePack, format!("Cannot encrypt payload: {}", err))
                     })?;
 
                 trace!("Sending payload: {:?}", bytes);
@@ -91,6 +134,7 @@ impl Payloads {
     }
 
     pub fn decrypt(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>)> {
+        println!("in Payloads::decrypt");
         match payload {
             MessagePayload::V1(payload) => {
                 if let Ok(payload) = Payloads::decrypt_payload_v1(my_vk, payload) {
@@ -116,15 +160,20 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v1(my_vk: &str, payload: &Vec<i8>) -> VcxResult<PayloadV1> {
-        let (_, data) = crypto::parse_msg(&my_vk, &to_u8(payload))?;
+        println!("in Payloads::decrypt_payload_v1 line 163");
+        let (x, data) = crypto::parse_msg(&my_vk, &to_u8(payload))?;
+        println!("string from parse_msg = {}; len(data) = {}", x, data.len());
 
         let my_payload: PayloadV1 = rmp_serde::from_slice(&data[..])
-            .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidMessagePack, format!("Cannot decrypt payload: {}", err)))?;
+            .map_err(|err| VcxError::from_msg(
+                VcxErrorKind::InvalidMessagePack,
+                format!("Cannot decrypt payload: {}", err)))?;
 
         Ok(my_payload)
     }
 
     pub fn decrypt_payload_v2(_my_vk: &str, payload: &::serde_json::Value) -> VcxResult<PayloadV2> {
+        println!("in Payloads::decrypt_payload_v2");
         let payload = ::serde_json::to_vec(&payload)
             .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidState, err))?;
 
@@ -150,9 +199,12 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v12(_my_vk: &str, payload: &::serde_json::Value) -> VcxResult<PayloadV12> {
+        println!("in decrypt_payload_v12");
+
         let payload = ::serde_json::to_vec(&payload)
             .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidState, err))?;
 
+        println!("shouldn't get past first ? operator");
         let unpacked_msg = crypto::unpack_message(&payload)?;
 
         let message: ::serde_json::Value = ::serde_json::from_slice(unpacked_msg.as_slice())
@@ -252,5 +304,28 @@ impl PayloadTypes {
             version: kind.family().version().to_string(),
             type_: kind.name().to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decrypt_with_empty_payload_is_err() {
+        assert!(Payloads::decrypt("my key", &MessagePayload::V1(Vec::new())).is_err());
+    }
+
+    #[test]
+    fn decrypt_with_v1_payload_fails_with_bad_verkey() {
+        let payload_bytes: Vec<i8> = (0..9).collect();
+        let payload = MessagePayload::V1(payload_bytes);
+        assert!(Payloads::decrypt("my key", &payload).is_err());
+    }
+
+    #[test]
+    fn decrypt_with_v2_payload_fails_with_empty_verkey() {
+        let payload = MessagePayload::V2(json!("{}"));
+        assert!(Payloads::decrypt("", &payload).is_err());
     }
 }
