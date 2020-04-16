@@ -329,8 +329,6 @@ impl Message {
                     });
                     new_message.decrypted_payload = ::serde_json::to_string(&x).ok();
                 } else {
-                    new_message.decrypted_payload = ::serde_json::to_string(&data).ok();
-
                     // POTENTIAL BUG: we are losing the thread that was potentially captured
                     // from what was decrypted!
                 }
