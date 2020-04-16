@@ -171,10 +171,7 @@ impl Payloads {
     }
 
     pub fn decrypt(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>)> {
-        match Payloads::decrypt_helper(my_vk, payload) {
-            Ok((data, th, _)) => Ok((data, th)),
-            Err(x) => Err(x)
-        }
+        Payloads::decrypt_helper(my_vk, payload).map(|(data, th, _)| (data, th))
     }
 
     pub fn decrypt_payload_v1(my_vk: &str, payload: &Vec<i8>) -> VcxResult<PayloadV1> {
