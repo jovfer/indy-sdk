@@ -85,6 +85,10 @@ pub struct PayloadV2 {
     pub thread: Thread,
 }
 
+impl PayloadV2 {
+
+}
+
 impl Payloads {
     // TODO: Refactor Error
     // this will become a CommonError, because multiple types (Connection/Issuer Credential) use this function
@@ -133,36 +137,52 @@ impl Payloads {
         }
     }
 
-    pub fn decrypt(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>)> {
-        println!("in Payloads::decrypt");
+    pub fn decrypt_helper(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>, Option<MessageTypeV2>)> {
         match payload {
             MessagePayload::V1(payload) => {
+                // If we can do v1 style decryption
                 if let Ok(payload) = Payloads::decrypt_payload_v1(my_vk, payload) {
-                    Ok((payload.msg, None))
+                    // Return a VcxResult that contains the output String and no thread.
+                    Ok((payload.msg, None, None))
                 } else {
+                    // Convert to a vector of u8.
                     let vec = to_u8(payload);
+                    // Get a JSON value from the text -- or return VcxError on failure.
                     let json: Value = serde_json::from_slice(&vec[..])
-                        .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidMessagePack, format!("Cannot deserialize MessagePayload: {}", err)))?;
-
-                    let payload = match Payloads::decrypt_payload_v12(&my_vk, &json)?.msg {
+                        .map_err(|err|
+                            VcxError::from_msg(VcxErrorKind::InvalidMessagePack,
+                                               format!("Cannot deserialize MessagePayload: {}", err)))?;
+                    // If we got a JSON value, decrypt it in v12 style. If that fails, return
+                    // VcxError. If it succeeds, get String output from the .msg property. It
+                    // might be encoded as a String already, or it might be a JSON Value object
+                    // that needs to be converted to a String.
+                    let payload = Payloads::decrypt_payload_v12(&my_vk, &json)?;
+                    let type_ = payload.type_;
+                    let payload = match payload.msg {
                         serde_json::Value::String(_str) => _str,
                         value => value.to_string()
                     };
-
-                    Ok((payload, None))
+                    // Return a VcxResult that contains the output String and no thread.
+                    Ok((payload, None, Some(type_)))
                 }
             }
+            // Else if we can do v2 style decryption
             MessagePayload::V2(payload) => {
                 let payload = Payloads::decrypt_payload_v2(my_vk, payload)?;
-                Ok((payload.msg, Some(payload.thread)))
+                Ok((payload.msg, Some(payload.thread), None))
             }
         }
     }
 
+    pub fn decrypt(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>)> {
+        match Payloads::decrypt_helper(my_vk, payload) {
+            Ok((data, th, _)) => Ok((data, th)),
+            Err(x) => Err(x)
+        }
+    }
+
     pub fn decrypt_payload_v1(my_vk: &str, payload: &Vec<i8>) -> VcxResult<PayloadV1> {
-        println!("in Payloads::decrypt_payload_v1 line 163");
         let (x, data) = crypto::parse_msg(&my_vk, &to_u8(payload))?;
-        println!("string from parse_msg = {}; len(data) = {}", x, data.len());
 
         let my_payload: PayloadV1 = rmp_serde::from_slice(&data[..])
             .map_err(|err| VcxError::from_msg(
@@ -173,7 +193,6 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v2(_my_vk: &str, payload: &::serde_json::Value) -> VcxResult<PayloadV2> {
-        println!("in Payloads::decrypt_payload_v2");
         let payload = ::serde_json::to_vec(&payload)
             .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidState, err))?;
 
@@ -199,12 +218,10 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v12(_my_vk: &str, payload: &::serde_json::Value) -> VcxResult<PayloadV12> {
-        println!("in decrypt_payload_v12");
 
         let payload = ::serde_json::to_vec(&payload)
             .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidState, err))?;
 
-        println!("shouldn't get past first ? operator");
         let unpacked_msg = crypto::unpack_message(&payload)?;
 
         let message: ::serde_json::Value = ::serde_json::from_slice(unpacked_msg.as_slice())
