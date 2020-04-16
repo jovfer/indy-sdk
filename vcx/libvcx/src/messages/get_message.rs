@@ -358,9 +358,7 @@ impl Message {
         use ::issuer_credential::{CredentialOffer, CredentialMessage};
         use std::convert::TryInto;
 
-        println!("in decrypt v3");
         let a2a_message = EncryptionEnvelope::open(self.payload()?)?;
-        println!("opened envelope");
 
         let (kind, msg) = match a2a_message {
             A2AMessage::PresentationRequest(presentation_request) => {

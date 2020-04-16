@@ -85,10 +85,6 @@ pub struct PayloadV2 {
     pub thread: Thread,
 }
 
-impl PayloadV2 {
-
-}
-
 impl Payloads {
     // TODO: Refactor Error
     // this will become a CommonError, because multiple types (Connection/Issuer Credential) use this function
@@ -182,7 +178,7 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v1(my_vk: &str, payload: &Vec<i8>) -> VcxResult<PayloadV1> {
-        let (x, data) = crypto::parse_msg(&my_vk, &to_u8(payload))?;
+        let (_, data) = crypto::parse_msg(&my_vk, &to_u8(payload))?;
 
         let my_payload: PayloadV1 = rmp_serde::from_slice(&data[..])
             .map_err(|err| VcxError::from_msg(
@@ -218,7 +214,6 @@ impl Payloads {
     }
 
     pub fn decrypt_payload_v12(_my_vk: &str, payload: &::serde_json::Value) -> VcxResult<PayloadV12> {
-
         let payload = ::serde_json::to_vec(&payload)
             .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidState, err))?;
 
