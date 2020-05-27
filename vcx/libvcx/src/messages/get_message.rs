@@ -268,10 +268,17 @@ pub struct DeliveryDetails {
     last_updated_date_time: String,
 }
 
+/// Contains a message in unencrypted form, ready to be consumed
+/// by components that want a data structure embodying the intention
+/// of the sender.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(untagged)]
 pub enum MessagePayload {
+    /// Data is encoded per MsgPack conventions. See
+    /// PayloadV1 in payload.rs.
     V1(Vec<i8>),
+    /// Data is encoded using DIDComm's JSON conventions.
+    /// See PayloadV2 in payload.rs.
     V2(::serde_json::Value),
 }
 
@@ -303,53 +310,48 @@ impl Message {
     }
 
     pub fn decrypt(&self, vk: &str) -> Message {
-        // TODO: must be Result
-        let mut new_message = self.clone();
-        if let Some(ref payload) = self.payload {
-            let decrypted_payload = match payload {
-                MessagePayload::V1(payload) => {
-                    if let Ok(payload) = Payloads::decrypt_payload_v1(&vk, &payload) {
-                        Ok(Payloads::PayloadV1(payload))
-                    } else {
-                        warn!("fallback to Payloads::decrypt_payload_v12 in Message:decrypt for MessagePayload::V1");
-                        serde_json::from_slice::<serde_json::Value>(&to_u8(payload)[..])
-                            .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidMessagePack, format!("Cannot deserialize MessagePayload: {}", err)))
-                            .and_then(|json| Payloads::decrypt_payload_v12(&vk, &json))
-                            .map(|json| {
-                                (
-                                    json.type_,
-                                    match json.msg {
-                                        serde_json::Value::String(_str) => _str,
-                                        value => value.to_string()
-                                    }
-                                )
-                            })
-                            .map(|(type_, payload)|
-                                Payloads::PayloadV2(PayloadV2 {
-                                    type_,
-                                    id: ::utils::uuid::uuid(),
-                                    msg: payload,
-                                    thread: Default::default(),
-                                })
-                            )
-                    }
-                }
-                MessagePayload::V2(payload) => Payloads::decrypt_payload_v2(&vk, &payload)
-                    .map(Payloads::PayloadV2)
-            };
+        // TODO: change to Result
 
-            if let Ok(decrypted_payload) = decrypted_payload {
-                new_message.decrypted_payload = ::serde_json::to_string(&decrypted_payload).ok();
+        // Allocate a new object to hold the output of this function.
+        let mut new_message = self.clone();
+        // If the payload isn't None...
+        if let Some(ref payload) = self.payload {
+            // Try to decrypt it in one of the standard ways.
+            if let Ok((data, _thread, v12)) =
+                        Payloads::decrypt_helper(vk, payload) {
+                // If we decrypted it in the style of V 1.2, we have some fixup
+                // to do.
+                if let Some(typ) = v12 {
+                    let x = Payloads::PayloadV2(PayloadV2 {
+                        type_: typ,
+                        id: ::utils::uuid::uuid(),
+                        msg: data,
+                        thread: Default::default(), // threads were not supported in v12
+                    });
+                    new_message.decrypted_payload = ::serde_json::to_string(&x).ok();
+                } else {
+                    // POTENTIAL BUG: we are losing the thread that was potentially captured
+                    // from what was decrypted!
+                    new_message.decrypted_payload = Some(data);
+                }
+
+            // Else we got an error; see if we can decrypt it to bytes that we can convert to JSON
+            // in the V3 style.
             } else if let Ok(decrypted_payload) = self._decrypt_v3_message() {
                 new_message.decrypted_payload = ::serde_json::to_string(&json!(decrypted_payload)).ok()
+            // Else just set decrypted payload to null.
             } else {
                 new_message.decrypted_payload = ::serde_json::to_string(&json!(null)).ok();
             }
         }
+
+        // Make sure message can't be decrypted again, by removing its payload.
         new_message.payload = None;
         new_message
     }
 
+    /// V3 is encryption as implemented in Aries RFC 0019 with Aries Interop Profile 1.0
+    /// (https://j.mp/2Vd0kiN). Contrast PayloadV2 in payload.rs.
     fn _decrypt_v3_message(&self) -> VcxResult<::messages::payload::PayloadV1> {
         use v3::messages::a2a::A2AMessage;
         use v3::utils::encryption_envelope::EncryptionEnvelope;
@@ -497,11 +499,121 @@ mod tests {
     #[cfg(any(feature = "agency", feature = "pool_tests"))]
     use std::time::Duration;
     use utils::devsetup::*;
+    use utils::libindy::tests::test_setup;
+
+    fn get_test_msg(pay: Option<MessagePayload>, decrypted: Option<String>) -> Message {
+        Message {
+            status_code: MessageStatusCode::Received,
+            payload: pay,
+            sender_did: "did:example:abc".to_string(),
+            uid: "sample uid".to_string(),
+            msg_type: RemoteMessageType::ProofReq,
+            ref_msg_id: None,
+            delivery_details: Vec::new(),
+            decrypted_payload: decrypted
+        }
+    }
+
+    fn setup_wallet() -> test_setup::Setup {
+        ::settings::set_config_value(::settings::CONFIG_ENABLE_TEST_MODE, "false");
+        test_setup::key()
+    }
+
+    #[ignore] // I can't get this to work because I'm apparently encrypting wrong. Keeping the test for its compilation may be useful?
+    #[test]
+    fn decrypt_v3_works() {
+        use v3::utils::encryption_envelope::EncryptionEnvelope;
+        use v3::messages::trust_ping::ping::Ping;
+        use v3::messages::connection::did_doc;
+
+        let wallet = setup_wallet();
+        let ddoc = did_doc::tests::_did_doc();
+        let ping = Ping::create().set_thread_id("this-is-a-fake-thread-id".to_string());
+        let envelope =
+            EncryptionEnvelope::create(&ping.to_a2a_message(),
+                                       Some(&wallet.key),
+                                       &ddoc).unwrap();
+        // This is silly. There's got to be some simpler way to treat a vector of unsigned
+        // bytes as a vector of signed bytes, without all this nonsense. Perhaps it's something
+        // like this? https://stackoverflow.com/a/59707887 But that's super old. The compiler
+        // suggests using a From trait, but I can't figure out how to do it. Googling doesn't
+        // help, since "from" is treated as noise.
+        let v1_bytes = to_i8(&envelope.0);
+
+        let msg = get_test_msg(Some(MessagePayload::V1(v1_bytes)), None);
+        assert!(msg._decrypt_v3_message().is_ok());
+    }
+
+    #[test]
+    fn decrypt_already_decrypted_is_safe_no_op() {
+        let msg = get_test_msg(None, Some("hello".to_string()));
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_empty_payload_is_safe_no_op() {
+        let msg = get_test_msg(Some(MessagePayload::V1(Vec::new())), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v1_payload_fails_with_bad_verkey() {
+        let payload_bytes: Vec<i8> = (0..9).collect();
+        let payload = MessagePayload::V1(payload_bytes);
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v1_payload_fails_without_verkey() {
+        let payload_bytes: Vec<i8> = (0..9).collect();
+        let payload = MessagePayload::V1(payload_bytes);
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("").payload.is_none());
+    }
+
+    #[test]
+    fn decrypt_with_v2_payload_fails_with_bad_verkey() {
+        let payload = MessagePayload::V2(json!("{}"));
+        let msg = get_test_msg(Some(payload), None);
+        assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    use utils::constants::TRUSTEE_SEED;
+    use messages::thread::Thread;
+
+    #[test]
+    fn decrypt_works_for_v2() {
+        let _setup = SetupWallet::init();
+        ::utils::libindy::wallet::init_wallet(settings::DEFAULT_WALLET_NAME, None, None, None).unwrap();
+
+        let (_did, vk) = ::utils::libindy::signus::create_and_store_my_did(Some(TRUSTEE_SEED), None).unwrap();
+        const TEST_MSG: &str = "test msg";
+
+        let encrypted = Payloads::encrypt(&vk, &vk,
+                                          TEST_MSG,
+                                          PayloadKinds::Other("test".to_owned()),
+                                          Some(Thread::new().set_thid("some_thread_id".to_owned())),
+                                          &ProtocolTypes::V2).unwrap();
+
+        let msg = Message {
+            status_code: MessageStatusCode::Created,
+            payload:  Some(MessagePayload::V2(serde_json::from_slice(encrypted.as_slice()).unwrap())),
+            sender_did: "".to_string(),
+            uid: "".to_string(),
+            msg_type: RemoteMessageType::ConnReq,
+            ref_msg_id: None,
+            delivery_details: vec![],
+            decrypted_payload: None,
+        };
+
+        let decrypted_msg = msg.decrypt(&vk);
+        assert_eq!(decrypted_msg.decrypted_payload, Some("test msg".to_owned()));
+    }
 
     #[test]
     fn test_parse_get_messages_response() {
         let _setup = SetupMocks::init();
-
         let result = GetMessagesBuilder::create_v1().parse_response(GET_MESSAGES_RESPONSE.to_vec()).unwrap();
         assert_eq!(result.len(), 3)
     }

@@ -1,5 +1,6 @@
 use messages::thread::Thread;
 use v3::messages::a2a::{MessageId, A2AMessage};
+use error::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Ping {
@@ -32,6 +33,11 @@ impl Ping {
     pub fn request_response(mut self) -> Ping {
         self.response_requested = true;
         self
+    }
+
+    pub fn to_json(&self) -> VcxResult<String> {
+        serde_json::to_string(self)
+            .map_err(|err| VcxError::from_msg(VcxErrorKind::InvalidJson, format!("Cannot serialize Ping: {}", err)))
     }
 }
 

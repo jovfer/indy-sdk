@@ -30,8 +30,7 @@ pub fn parse_msg(recipient_vk: &str, msg: &[u8]) -> VcxResult<(String, Vec<u8>)>
     if settings::indy_mocks_enabled() { return Ok((::utils::constants::VERKEY.to_string(), Vec::from(msg).to_owned())); }
 
     crypto::auth_decrypt(::utils::libindy::wallet::get_wallet_handle(), recipient_vk, msg)
-        .wait()
-        .map_err(VcxError::from)
+        .wait().map_err(VcxError::from)
 }
 
 pub fn parse_anonymous_msg(recipient_vk: &str, msg: &[u8]) -> VcxResult<Vec<u8>> {
