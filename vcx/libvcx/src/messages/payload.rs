@@ -133,6 +133,8 @@ impl Payloads {
         }
     }
 
+    /// Returns either an error, or the decrypted string plus its thread decorator (if any).
+    /// Also returns Some(MessageTypeV2) if message looked like V1 but turned out to be V2.
     pub fn decrypt_helper(my_vk: &str, payload: &MessagePayload) -> VcxResult<(String, Option<Thread>, Option<MessageTypeV2>)> {
         match payload {
             MessagePayload::V1(payload) => {

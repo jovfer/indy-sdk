@@ -317,9 +317,10 @@ impl Message {
         // If the payload isn't None...
         if let Some(ref payload) = self.payload {
             // Try to decrypt it in one of the standard ways.
-            if let Ok((data, _thread, v12)) = Payloads::decrypt_helper(vk, payload) {
-                // The next few lines are horribly unidiomatic Rust, but I can't figure out a cleaner
-                // way to write it. Need a Rustacean to polish...
+            if let Ok((data, _thread, v12)) =
+                        Payloads::decrypt_helper(vk, payload) {
+                // If we decrypted it in the style of V 1.2, we have some fixup
+                // to do.
                 if let Some(typ) = v12 {
                     let x = Payloads::PayloadV2(PayloadV2 {
                         type_: typ,
@@ -331,6 +332,7 @@ impl Message {
                 } else {
                     // POTENTIAL BUG: we are losing the thread that was potentially captured
                     // from what was decrypted!
+                    new_message.decrypted_payload = Some(data);
                 }
 
             // Else we got an error; see if we can decrypt it to bytes that we can convert to JSON
@@ -575,6 +577,38 @@ mod tests {
         let payload = MessagePayload::V2(json!("{}"));
         let msg = get_test_msg(Some(payload), None);
         assert!(msg.decrypt("my key").payload.is_none());
+    }
+
+    use utils::constants::TRUSTEE_SEED;
+    use messages::thread::Thread;
+
+    #[test]
+    fn decrypt_works_for_v2() {
+        let _setup = SetupWallet::init();
+        ::utils::libindy::wallet::init_wallet(settings::DEFAULT_WALLET_NAME, None, None, None).unwrap();
+
+        let (_did, vk) = ::utils::libindy::signus::create_and_store_my_did(Some(TRUSTEE_SEED), None).unwrap();
+        const TEST_MSG: &str = "test msg";
+
+        let encrypted = Payloads::encrypt(&vk, &vk,
+                                          TEST_MSG,
+                                          PayloadKinds::Other("test".to_owned()),
+                                          Some(Thread::new().set_thid("some_thread_id".to_owned())),
+                                          &ProtocolTypes::V2).unwrap();
+
+        let msg = Message {
+            status_code: MessageStatusCode::Created,
+            payload:  Some(MessagePayload::V2(serde_json::from_slice(encrypted.as_slice()).unwrap())),
+            sender_did: "".to_string(),
+            uid: "".to_string(),
+            msg_type: RemoteMessageType::ConnReq,
+            ref_msg_id: None,
+            delivery_details: vec![],
+            decrypted_payload: None,
+        };
+
+        let decrypted_msg = msg.decrypt(&vk);
+        assert_eq!(decrypted_msg.decrypted_payload, Some("{\"@type\":\"did:sov:123456789abcdefghi1234;spec/test/1.0/test\",\"@id\":\"\",\"@msg\":\"test msg\",\"~thread\":{\"thid\":\"some_thread_id\",\"sender_order\":0,\"received_orders\":{}}}".to_owned()));
     }
 
     #[test]
