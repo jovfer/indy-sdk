@@ -608,7 +608,7 @@ mod tests {
         };
 
         let decrypted_msg = msg.decrypt(&vk);
-        assert_eq!(decrypted_msg.decrypted_payload, Some("{\"@type\":\"did:sov:123456789abcdefghi1234;spec/test/1.0/test\",\"@id\":\"\",\"@msg\":\"test msg\",\"~thread\":{\"thid\":\"some_thread_id\",\"sender_order\":0,\"received_orders\":{}}}".to_owned()));
+        assert_eq!(decrypted_msg.decrypted_payload, Some("test msg".to_owned()));
     }
 
     #[test]
