@@ -206,6 +206,13 @@ impl CommandExecutor {
 
         // FIXME: let metrics_command_executor = Arc::new(MetricsCommandExecutor::new(wallet_service.clone(), metrics_service.clone()));
 
+        std::panic::set_hook(Box::new(|pi| {
+                error!("Custom panic hook");
+                error!("Custom panic hook: {:?}", pi);
+            let bt = backtrace::Backtrace::new();
+            error!("Custom panic hook: {:?}", bt);
+            }));
+
         CommandExecutor {
             anoncreds_command_executor: anoncreds_command_executor.clone(),
             crypto_command_executor: crypto_command_executor.clone(),
