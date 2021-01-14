@@ -12,6 +12,7 @@ use indy_utils::crypto::base64;
 use serde::Deserialize;
 
 use sqlx::{
+    ConnectOptions,
     mysql::{MySqlConnectOptions, MySqlPoolOptions, MySqlRow},
     Done, MySqlPool, Row,
 };
@@ -23,6 +24,7 @@ use crate::{
     RecordOptions, SearchOptions,
 };
 use query::{wql_to_sql, wql_to_sql_count};
+use log::LevelFilter;
 
 mod query;
 
@@ -139,16 +141,17 @@ impl MySqlStorageType {
             return Ok(connection.clone());
         }
 
+        let mut conn_options = MySqlConnectOptions::new()
+            .host(host_addr)
+            .database(&config.db_name)
+            .username(&credentials.user)
+            .password(&credentials.pass);
+        conn_options.log_statements(LevelFilter::Debug);
+
         let connection = MySqlPoolOptions::default()
             .max_connections(4000)
             .test_before_acquire(false)
-            .connect_with(
-                MySqlConnectOptions::new()
-                    .host(host_addr)
-                    .database(&config.db_name)
-                    .username(&credentials.user)
-                    .password(&credentials.pass),
-            )
+            .connect_with(conn_options)
             .await?;
 
         connref.insert(connection_string, connection.clone());
