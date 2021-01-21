@@ -1,8 +1,9 @@
 use indy_api_types::{ErrorCode, CommandHandle};
-use crate::commands::{Command, CommandExecutor};
-use crate::commands::metrics::MetricsCommand;
+//use crate::commands::{Command, CommandExecutor};
+//use crate::commands::metrics::MetricsCommand;
 use indy_utils::ctypes;
 use libc::c_char;
+use std::ffi::CString;
 
 /// Collect metrics.
 ///
@@ -21,11 +22,9 @@ pub extern fn indy_collect_metrics(command_handle: CommandHandle,
 
     check_useful_c_callback!(cb, ErrorCode::CommonInvalidParam3);
 
-    let result = CommandExecutor::instance()
-        .send(Command::Metrics(MetricsCommand::CollectMetrics(
-            boxed_callback_string!("indy_collect_metrics", cb, command_handle)
-        )));
-    let res = prepare_result!(result);
+    cb(command_handle, ErrorCode::Success, CString::new("").unwrap().as_ptr());
+
+    let res = ErrorCode::Success;
     trace!("indy_collect_metrics: <<< res: {:?}", res);
     res
 }
